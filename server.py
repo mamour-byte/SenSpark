@@ -8,21 +8,28 @@
 #                  /  !          !        \     \  /       !           !        \
 #       __________/   !________  !         \     \/        !________   !         \ 
 
-import socket 
-import sqlite3 
+
+import socket
+import sqlite3
 import threading
-from fonctions import *  
+from fonctions import instanceServer  # Import spécifique
 
-threadsclient = []
+# Configuration du serveur
+HOST = '127.0.0.1'
+PORT = 50000
+MAX_CONNECTIONS = 5
 
-server = socket.socket(socket.AF_INET , socket.SOCK_STREAM)
-server.bind(('127.0.0.1',50000))
-# Ecoute sur le port 5000 
-server.listen(5)
-while True : 
-    client , infoClient = server.accept()
-    threadsclient.append(threading.Thread(None , instanceServer , None , (client , infoClient) , {}))
-    threadsclient[-1].start()
+def start_server():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
+        server.bind((HOST, PORT))
+        server.listen(MAX_CONNECTIONS)
+        print(f"Serveur démarré sur {HOST}:{PORT}")
 
-server.close()
+        while True:
+            client, infoClient = server.accept()
+            print(f"Nouvelle connexion de {infoClient}")
+            thread = threading.Thread(target=instanceServer, args=(client, infoClient))
+            thread.start()
 
+if __name__ == "__main__":
+    start_server()
